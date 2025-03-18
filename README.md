@@ -22,10 +22,10 @@ pip install -r requirements.txt
 Place your PGN file in the project directory and run:
 
 ```
-python pgn_to_audio.py
+python pgn_to_audio.py your_game.pgn
 ```
 
-By default, it will look for a file called `game.pgn`. To use a different file or customize pause lengths:
+To customize pause lengths:
 
 ```python
 pgn_to_mp3("your_game.pgn", 
@@ -42,3 +42,10 @@ pgn_to_mp3("your_game.pgn",
 - gTTS (Google Text-to-Speech)
 - moviepy
 - python-dotenv 
+
+## Live Demo
+
+A live version of this application is deployed on Streamlit and available at:
+https://pgn2audio.streamlit.app/
+
+You can use the web interface to convert PGN files to audio without installing anything on your local machine. 
