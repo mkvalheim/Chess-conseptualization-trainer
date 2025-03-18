@@ -1,4 +1,4 @@
-# PGN to Blind Chess
+# PGN to Audio
 
 Convert chess games in PGN format to audio for blind chess players or for learning chess while on the go.
 

@@ -3,13 +3,11 @@ import re
 import os
 import time
 from gtts import gTTS
-from dotenv import load_dotenv
 from moviepy.editor import AudioClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 import tempfile
-    
-load_dotenv(".env")
+
 
 print("Starting...")
 t = time.time()

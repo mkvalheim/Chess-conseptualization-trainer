@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+chess_com.py
 
 # Virtual Environment
 .env
