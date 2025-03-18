@@ -132,7 +132,7 @@ def turn_to_audio(turn, pause_length_1=1, pause_length_2=2, pause_length_3=3):
     # Concatenate all clips
     return concatenate_audioclips(audio_clips)
 
-def pgn_to_mp3(pgn_file, pause_length_1=1, pause_length_2=2, pause_length_3=3):
+def pgn_to_mp3(pgn_file, pause_length_1=2, pause_length_2=3, pause_length_3=3):
     try:
         with open(pgn_file, "r") as pgn:
             game = chess.pgn.read_game(pgn)

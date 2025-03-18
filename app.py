@@ -14,8 +14,8 @@ audio_settings = st.expander("Settings")
 with audio_settings:
     st.write("**Pause lengths in seconds**")
     st.write('It is recommended to use a good amount of pause between the move number and the white move, and between the white and black move, when using the audio for blindfold chess training.')
-    pause_length_1 = st.number_input("Pause between move number and white move", value=1, min_value=0, max_value=10, step=1)
-    pause_length_2 = st.number_input("Pause between white and black move", value=2, min_value=0, max_value=10, step=1)
+    pause_length_1 = st.number_input("Pause between move number and white move", value=2, min_value=0, max_value=10, step=1)
+    pause_length_2 = st.number_input("Pause between white and black move", value=3, min_value=0, max_value=10, step=1)
     pause_length_3 = st.number_input("Pause at the end of the turn", value=3, min_value=0, max_value=10, step=1)
     # Speed settings for use with other TTS engines, such as openai. Currently using gTTS which does not support speed, to avoid API costs.
     #st.write('**Speed of the audio**')
