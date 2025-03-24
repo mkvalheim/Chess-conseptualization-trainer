@@ -40,4 +40,7 @@ ENV/
 
 # OS specific files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Temp directory for PGN and MP3 files
+temp/ 

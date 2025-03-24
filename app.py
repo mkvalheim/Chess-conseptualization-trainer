@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(
     page_title="Chess Conceptualization Trainer",
     page_icon="♟️",
-    layout="wide"
+    layout="default"
 )
 
 st.title("Chess Conceptualization Trainer")
