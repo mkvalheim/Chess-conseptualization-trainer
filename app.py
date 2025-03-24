@@ -2,9 +2,8 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Chess Conceptualization Trainer",
-    page_icon="♟️",
-    layout="default"
-)
+    page_icon="♟️"
+    )
 
 st.title("Chess Conceptualization Trainer")
 st.write("Improve your chess visualization skills with audio-based training tools")
