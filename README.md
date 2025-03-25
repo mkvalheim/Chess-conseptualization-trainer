@@ -72,7 +72,7 @@ Access the trainer through the Streamlit app and:
 ## Live Demo
 
 A live version of this application is deployed on Streamlit and available at:
-[Chess Conceptualization Trainer](https://chess-concept-trainer.streamlit.app/)
+[Chess Conceptualization Trainer](https://chess-conceptualization-trainer.streamlit.app/)
 
 ## Development
 
