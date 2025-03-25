@@ -2,13 +2,15 @@ import sys
 import os
 import streamlit as st
 
-# Add modules directory to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 st.set_page_config(
     page_title="Chess Conceptualization Trainer",
     page_icon="♟️"
     )
+
+# Add modules directory to path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
 
 
 st.title("Chess Conceptualization Trainer")
