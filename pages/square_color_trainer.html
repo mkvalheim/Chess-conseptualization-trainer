@@ -10,11 +10,11 @@
             background-color: #ffffff;
             margin: 0;
             padding: 20px;
-            min-height: 900px;
+            min-height: 600px;
         }
         .container {
             max-width: 600px;
-            min-height: 900px;
+            min-height: 600px;
             width: 100%;
             text-align: center;
         }
@@ -38,20 +38,29 @@
             cursor: pointer;
             transition: transform 0.1s;
             min-width: 120px;
-            min-height: 120px;
         }
         button:active {
             transform: scale(0.98);
         }
         .white-btn {
-            background-color: #eae9d2;
+            background-color: #f2efe4;
+            aspect-ratio: 1/1;
             color: #1f2937;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .black-btn {
-            background-color: #221f0d;
+            background-color: #3c2f12;
+            aspect-ratio: 2/1;
             color: #ffffff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .black-btn:active {
+            background-color: #221f0d;
+            transform: scale(0.90);
+        }
+        .white-btn:active {
+            background-color: #eae9d2;
+            transform: scale(0.90);
         }
         .stats {
             display: flex;
@@ -63,6 +72,8 @@
         .start-btn {
             background-color: #d1d3bb;
             color: rgb(0, 0, 0);
+            font-family:sans-serif;
+            font-weight: bold;
             padding: 12px 30px;
             font-size: 16px;
             border-radius: 6px;
@@ -77,13 +88,15 @@
             text-align: left;
         }
         .game-over {
-            color: #904949;
+            color: #6d4435;
             font-size: 24px;
+            font-family:sans-serif;
             margin: 20px 0;
         }
         .success {
             color: #366d22;
             font-size: 24px;
+            font-family:sans-serif;
             margin: 20px 0;
         }
     </style>
@@ -93,12 +106,13 @@
         <div class="instructions">
             <h2>Instructions:</h2>
             <ol>
-                <li>Press "Start Game" to begin</li>
+                <li>Press "New Game" to begin</li>
                 <li>For each chess square shown, identify if it's a white or black square</li>
                 <li>Click the corresponding button (White or Black)</li>
                 <li>Get 25 correct in a row to complete the challenge</li>
                 <li>One wrong answer ends the game</li>
             </ol>
+            <p>You can also use the left and right arrow keys or the W and B keys to select the correct answer</p>
         </div>
 
         <div id="game-container" style="display: none;">
@@ -108,13 +122,13 @@
             </div>
             <div class="square-display" id="square-display"></div>
             <div class="button-container">
-                <button class="white-btn" onclick="checkAnswer('white')"></button>
-                <button class="black-btn" onclick="checkAnswer('black')"></button>
+                <button class="white-btn" onclick="checkAnswer('white')">&nbsp;</button>
+                <button class="black-btn" onclick="checkAnswer('black')">&nbsp;</button>
             </div>
         </div>
 
         <div id="start-container">
-            <button class="start-btn" onclick="startGame()">Start Game</button>
+            <button class="start-btn" onclick="startGame()">New Game</button>
         </div>
 
         <div id="result-container" style="display: none;"></div>
@@ -127,6 +141,26 @@
         let timerInterval;
         let currentSquare = '';
         let correctColor = '';
+
+        document.addEventListener('keydown', handleKeyPress);
+
+        // Add this function to handle keypress events
+        function handleKeyPress(event) {
+            if (!gameActive) {
+                // If game is not active and user presses Enter or Space, start game
+                if (event.key === 'Enter' || event.key === ' ') {
+                    startGame();
+                }
+                return;
+            }
+            
+            // If game is active, check for W (white) or B (black) key presses
+            if (event.key === 'w' || event.key === 'W' || event.key === 'ArrowLeft') {
+                checkAnswer('white');
+            } else if (event.key === 'b' || event.key === 'B' || event.key === 'ArrowRight') {
+                checkAnswer('black');
+            }
+        }
 
         function generateRandomSquare() {
             const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -192,9 +226,9 @@
             const resultContainer = document.getElementById('result-container');
             
             if (success) {
-                resultContainer.innerHTML = `<div class="success">Congratulations! You completed the challenge in ${elapsed.toFixed(1)} seconds!</div>`;
+                resultContainer.innerHTML = `<div class="success">Congratulations! <br/>You completed the challenge in ${elapsed.toFixed(1)} seconds!</div>`;
             } else {
-                resultContainer.innerHTML = `<div class="game-over">Game Over! You scored: ${score}/25</div> in ${elapsed.toFixed(1)} seconds`;
+                resultContainer.innerHTML = `<div class="game-over">Game Over! <br/>You scored: ${score}/25 <br/>Time: ${elapsed.toFixed(1)} seconds</div>`;
             }
             
             resultContainer.style.display = 'block';

@@ -9,4 +9,4 @@ with open(os.path.join(os.path.dirname(__file__), 'square_color_trainer.html'), 
     html_content = f.read()
 
 # Display the HTML content with adjusted height
-st.components.v1.html(html_content, height=900)
+st.components.v1.html(html_content, height=600)

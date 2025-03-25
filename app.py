@@ -10,6 +10,8 @@ st.set_page_config(
 # Add modules directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+def back_to_home():
+    st.Page("pages/home.py")
 
 
 pages = {
@@ -25,5 +27,6 @@ pages = {
 pg = st.navigation(pages)
 pg.run()
 
-st.title("Chess Conceptualization Trainer")
-st.write("Improve your chess visualization skills with audio-based training tools")
+st.divider()
+if "home.py" not in str(pg._page):
+    st.page_link("pages/home.py", label="Back to Home", icon=":material/home:")
