@@ -3,14 +3,13 @@ import re
 import os
 import time
 from gtts import gTTS
-from moviepy.editor import AudioClip
+from moviepy.audio import AudioClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 import tempfile
 
 
-print("Starting...")
-t = time.time()
+
 
 # Define the maps
 extension_map = {
@@ -133,6 +132,10 @@ def turn_to_audio(turn, pause_length_1=1, pause_length_2=2, pause_length_3=3):
     return concatenate_audioclips(audio_clips)
 
 def pgn_to_mp3(pgn_file, pause_length_1=2, pause_length_2=3, pause_length_3=3):
+    
+    print("Starting...")
+    t = time.time()
+
     try:
         with open(pgn_file, "r") as pgn:
             game = chess.pgn.read_game(pgn)
@@ -157,6 +160,8 @@ def pgn_to_mp3(pgn_file, pause_length_1=2, pause_length_2=3, pause_length_3=3):
         final_audio.write_audiofile("game.mp3")
         
         print("Audio file created successfully.")
+        print("Done in " + str(time.time() - t) + " seconds")
+
         return True
     except Exception as e:
         print(f"Error in pgn_to_mp3: {str(e)}")
@@ -170,4 +175,3 @@ if __name__ == "__main__":
         pause_length_3=2.0     # 2 seconds
     )
 
-print("Done in " + str(time.time() - t) + " seconds")

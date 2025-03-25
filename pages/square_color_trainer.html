@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 900px;
+        }
+        .container {
+            max-width: 600px;
+            min-height: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        .square-display {
+            font-size: 60px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #1f2937;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            min-width: 120px;
+            min-height: 120px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .white-btn {
+            background-color: #eae9d2;
+            color: #1f2937;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .black-btn {
+            background-color: #221f0d;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #4b5563;
+        }
+        .start-btn {
+            background-color: #d1d3bb;
+            color: rgb(0, 0, 0);
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .instructions {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .game-over {
+            color: #904949;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .success {
+            color: #366d22;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions">
+            <h2>Instructions:</h2>
+            <ol>
+                <li>Press "Start Game" to begin</li>
+                <li>For each chess square shown, identify if it's a white or black square</li>
+                <li>Click the corresponding button (White or Black)</li>
+                <li>Get 25 correct in a row to complete the challenge</li>
+                <li>One wrong answer ends the game</li>
+            </ol>
+        </div>
+
+        <div id="game-container" style="display: none;">
+            <div class="stats">
+                <span>Score: <span id="score">0</span>/25</span>
+                <span>Time: <span id="timer">0.0</span>s</span>
+            </div>
+            <div class="square-display" id="square-display"></div>
+            <div class="button-container">
+                <button class="white-btn" onclick="checkAnswer('white')"></button>
+                <button class="black-btn" onclick="checkAnswer('black')"></button>
+            </div>
+        </div>
+
+        <div id="start-container">
+            <button class="start-btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="result-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        let gameActive = false;
+        let score = 0;
+        let startTime;
+        let timerInterval;
+        let currentSquare = '';
+        let correctColor = '';
+
+        function generateRandomSquare() {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            return randomChoice(files) + randomChoice(ranks);
+        }
+
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getSquareColor(square) {
+            const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
+            const rank = parseInt(square[1]) - 1;
+            return (file + rank) % 2 === 1 ? 'white' : 'black';
+        }
+
+        function updateTimer() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').textContent = elapsed.toFixed(1);
+        }
+
+        function nextSquare() {
+            currentSquare = generateRandomSquare();
+            correctColor = getSquareColor(currentSquare);
+            document.getElementById('square-display').textContent = currentSquare;
+        }
+
+        function checkAnswer(selectedColor) {
+            if (!gameActive) return;
+
+            if (selectedColor === correctColor) {
+                score++;
+                document.getElementById('score').textContent = score;
+
+                if (score >= 25) {
+                    endGame(true);
+                } else {
+                    nextSquare();
+                }
+            } else {
+                endGame(false);
+            }
+        }
+
+        function startGame() {
+            gameActive = true;
+            score = 0;
+            startTime = Date.now();
+            document.getElementById('score').textContent = '0';
+            document.getElementById('timer').textContent = '0.0';
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('start-container').style.display = 'none';
+            document.getElementById('result-container').style.display = 'none';
+            nextSquare();
+            timerInterval = setInterval(updateTimer, 100);
+        }
+
+        function endGame(success) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            const elapsed = (Date.now() - startTime) / 1000;
+            const resultContainer = document.getElementById('result-container');
+            
+            if (success) {
+                resultContainer.innerHTML = `<div class="success">Congratulations! You completed the challenge in ${elapsed.toFixed(1)} seconds!</div>`;
+            } else {
+                resultContainer.innerHTML = `<div class="game-over">Game Over! You scored: ${score}/25</div> in ${elapsed.toFixed(1)} seconds`;
+            }
+            
+            resultContainer.style.display = 'block';
+            document.getElementById('start-container').style.display = 'block';
+            document.getElementById('game-container').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 
