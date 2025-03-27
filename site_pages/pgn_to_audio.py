@@ -95,16 +95,3 @@ st.markdown("""
 - Visualize the board after each move
 - Use the pause settings to give yourself time to visualize
 """)
-
-# When this file is run directly, set the page config and render
-if __name__ == "__main__":
-    st.set_page_config(
-        page_title="PGN to Audio Converter",
-        page_icon="♟️"
-    )
-    
-    # Add navigation back to home
-    if st.sidebar.button("← Back to Home"):
-        st.switch_page("app.py")
-        
-    render_pgn_to_audio() 
