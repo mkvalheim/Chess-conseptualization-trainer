@@ -5,3 +5,4 @@ moviepy
 python-chess
 python-dotenv
 openai
+elevenlabs

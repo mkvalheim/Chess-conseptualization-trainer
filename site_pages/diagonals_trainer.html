@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Color Trainer</title>
+    <link rel="stylesheet" href="/static/css/square_color_trainer.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .container {
+            max-width: 600px;
+            min-height: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .square-display {
+            font-size: 60px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #1f2937;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            min-width: 120px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .white-btn {
+            background-color: #f2efe4;
+            aspect-ratio: 1/1;
+            color: #1f2937;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .black-btn {
+            background-color: #3c2f12;
+            aspect-ratio: 2/1;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .black-btn:active {
+            background-color: #221f0d;
+            transform: scale(0.90);
+        }
+
+        .white-btn:active {
+            background-color: #eae9d2;
+            transform: scale(0.90);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #4b5563;
+        }
+
+        .start-btn {
+            background-color: #d1d3bb;
+            color: rgb(0, 0, 0);
+            font-family: sans-serif;
+            font-weight: bold;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .instructions {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .game-over {
+            color: #6d4435;
+            font-size: 24px;
+            font-family: sans-serif;
+            margin: 20px 0;
+        }
+
+        .success {
+            color: #366d22;
+            font-size: 24px;
+            font-family: sans-serif;
+            margin: 20px 0;
+        } 
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions">
+            <h2>Instructions:</h2>
+            <ol>
+                <li>Press "New Game" to begin</li>
+                <li>You will be shown two squares</li>
+                <li>If the two squares are on the same diagonal, click the "Same" button</li>
+                <li>If the two squares are on different diagonals, click the "Different" button</li>
+                <li>Get 25 correct in a row to complete the challenge</li>
+                <li>One wrong answer ends the game</li>
+            </ol>
+            <p>You can also use the left and right arrow keys or the S and D keys to select the correct answer</p>
+        </div>
+
+        <div id="game-container" style="display: none;">
+            <div class="stats">
+                <span>Score: <span id="score">0</span>/25</span>
+                <span>Time: <span id="timer">0.0</span>s</span>
+            </div>
+            <div class="square-display" id="square-display"></div>
+            <div class="button-container">
+                <button class="same-btn" onclick="checkAnswer(true)">Same</button>
+                <button class="diff-btn" onclick="checkAnswer(false)">Different</button>
+            </div>
+        </div>
+
+        <div id="start-container">
+            <button class="start-btn" onclick="startGame()">New Game</button>
+        </div>
+
+        <div id="result-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        let gameActive = false;
+        let score = 0;
+        let startTime;
+        let timerInterval;
+        let currentSquare = '';
+        let correctColor = '';
+        let isSameDiagonal = false;
+        let currentSquares = ['', '']; // Track current squares
+        let lastGeneratedSquares = []; // Track last few generated squares
+
+        // Seeded random number generator
+        function seededRandom(seed) {
+            const x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function getRandomInt(min, max, seed) {
+            return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
+        }
+
+        function generateRandomSquare(seed) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            const fileIndex = getRandomInt(0, 7, seed);
+            const rankIndex = getRandomInt(0, 7, seed + 1);
+            return files[fileIndex] + ranks[rankIndex];
+        }
+
+        function generateSecondSquare(square1, shouldBeSameDiagonal, seed) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            
+            // Get indices for first square
+            const file1Index = files.indexOf(square1[0]);
+            const rank1Index = ranks.indexOf(square1[1]);
+            
+            // Step 2: Generate a random file different from the first square
+            let file2Index;
+            do {
+                file2Index = Math.floor(seededRandom(seed) * 8);
+            } while (file2Index === file1Index);
+            
+            // Calculate file difference
+            const fileDiff = file2Index - file1Index;
+            
+            // Step 3: Generate rank based on whether we want same diagonal or not
+            let rank2Index;
+            
+            if (shouldBeSameDiagonal) {
+                // If we want same diagonal, calculate rank that puts it on diagonal
+                // The formula ensures we're on the same diagonal: |fileDiff| = |rankDiff|
+                
+                // Get the sign of the file difference
+                const fileDiffSign = Math.sign(fileDiff);
+                
+                // Try both diagonal directions
+                let candidateRank1 = rank1Index + (Math.abs(fileDiff) * fileDiffSign);
+                let candidateRank2 = rank1Index - (Math.abs(fileDiff) * fileDiffSign);
+                
+                // Select the candidate that is on the board
+                if (candidateRank1 >= 0 && candidateRank1 <= 7) {
+                    rank2Index = candidateRank1;
+                } else if (candidateRank2 >= 0 && candidateRank2 <= 7) {
+                    rank2Index = candidateRank2;
+                } else {
+                    // If neither works, we'll need a fallback solution
+                    // Choose a different file
+                    
+                    // Try files that are fewer steps away
+                    for (let delta = 1; delta <= 3; delta++) {
+                        for (let dir = -1; dir <= 1; dir += 2) {
+                            const testFileIndex = file1Index + (delta * dir);
+                            if (testFileIndex >= 0 && testFileIndex <= 7) {
+                                const testFileDiff = testFileIndex - file1Index;
+                                
+                                candidateRank1 = rank1Index + Math.abs(testFileDiff);
+                                candidateRank2 = rank1Index - Math.abs(testFileDiff);
+                                
+                                if (candidateRank1 >= 0 && candidateRank1 <= 7) {
+                                    file2Index = testFileIndex;
+                                    rank2Index = candidateRank1;
+                                    break;
+                                } else if (candidateRank2 >= 0 && candidateRank2 <= 7) {
+                                    file2Index = testFileIndex;
+                                    rank2Index = candidateRank2;
+                                    break;
+                                }
+                            }
+                        }
+                        if (rank2Index !== undefined) break;
+                    }
+                    
+                    // Ultimate fallback if we still don't have a valid square
+                    if (rank2Index === undefined) {
+                        if (file1Index < 4 && rank1Index < 4) {
+                            file2Index = file1Index + 1;
+                            rank2Index = rank1Index + 1;
+                        } else {
+                            file2Index = file1Index - 1;
+                            rank2Index = rank1Index - 1;
+                        }
+                    }
+                }
+            } else {
+                // For different diagonal, we need a simpler and more reliable approach
+                
+                // Start with a position not on the same diagonal
+                rank2Index = (rank1Index + 1) % 8;  // Simply pick adjacent rank
+                
+                // Check if this puts us on a diagonal
+                const isOnSameDiagonal = Math.abs(file2Index - file1Index) === Math.abs(rank2Index - rank1Index);
+                if (isOnSameDiagonal) {
+                    // If on diagonal, try another rank
+                    rank2Index = (rank2Index + 1) % 8;
+                    
+                    // Check again and adjust if needed
+                    const isStillOnSameDiagonal = Math.abs(file2Index - file1Index) === Math.abs(rank2Index - rank1Index);
+                    if (isStillOnSameDiagonal) {
+                        // If still on diagonal, try a completely different file
+                        const originalFile2 = file2Index;
+                        for (let i = 0; i < 7; i++) {
+                            file2Index = (originalFile2 + i + 1) % 8;
+                            if (file2Index === file1Index) continue;  // Skip same file
+                            
+                            // Check if this new file puts us on diagonal
+                            const nowOnDiagonal = Math.abs(file2Index - file1Index) === Math.abs(rank2Index - rank1Index);
+                            if (!nowOnDiagonal) break;
+                        }
+                    }
+                }
+                
+                // Triple-check we're not on same diagonal or same rank/file
+                const finalCheck = Math.abs(file2Index - file1Index) === Math.abs(rank2Index - rank1Index);
+                if (finalCheck || rank2Index === rank1Index) {
+                    // Emergency fallback
+                    file2Index = (file1Index + 4) % 8;
+                    rank2Index = (rank1Index + 3) % 8;
+                }
+            }
+            
+            // Final sanity check - make sure indices are in bounds
+            if (file2Index < 0) file2Index = 0;
+            if (file2Index > 7) file2Index = 7;
+            if (rank2Index < 0) rank2Index = 0;
+            if (rank2Index > 7) rank2Index = 7;
+            
+            return files[file2Index] + ranks[rank2Index];
+        }
+
+        function getCombinationKey(square1, square2) {
+            // Sort squares to ensure same combination regardless of order
+            return [square1, square2].sort().join('-');
+        }
+
+        function startGame() {
+            console.log('Starting new game...');
+            gameActive = true;
+            score = 0;
+            startTime = Date.now();
+            currentSquares = ['', ''];
+            lastGeneratedSquares = []; // Reset the history
+            document.getElementById('score').textContent = '0';
+            document.getElementById('timer').textContent = '0.0';
+            
+            // Show game UI immediately
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('start-container').style.display = 'none';
+            document.getElementById('result-container').style.display = 'none';
+            
+            // Start timer
+            timerInterval = setInterval(updateTimer, 100);
+            
+            // Use setTimeout to avoid blocking the UI thread when generating squares
+            setTimeout(() => {
+                try {
+                    // Use preset squares for the first turn to avoid any possible freezing
+                    const presetOptions = [
+                        {sq1: "a1", sq2: "h8", same: true},
+                        {sq1: "a8", sq2: "h1", same: true},
+                        {sq1: "c3", sq2: "f6", same: true},
+                        {sq1: "b7", sq2: "e4", same: true},
+                        {sq1: "d4", sq2: "e6", same: false},
+                        {sq1: "b2", sq2: "g6", same: false},
+                        {sq1: "a3", sq2: "h5", same: false},
+                        {sq1: "f2", sq2: "c7", same: false}
+                    ];
+                    
+                    // Select a random preset for the first question
+                    const preset = presetOptions[Math.floor(Math.random() * presetOptions.length)];
+                    currentSquares = [preset.sq1, preset.sq2];
+                    isSameDiagonal = preset.same;
+                    
+                    // Display the squares
+                    document.getElementById('square-display').textContent = preset.sq1 + ' ' + preset.sq2;
+                    
+                    console.log('Game started successfully with preset squares:', preset.sq1, preset.sq2);
+                } catch (error) {
+                    console.error('Error starting game:', error);
+                    alert('There was an error starting the game. Please refresh the page and try again.');
+                }
+            }, 10);
+        }
+
+        function updateTimer() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').textContent = elapsed.toFixed(1);
+        }
+
+        function endGame(success) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            const elapsed = (Date.now() - startTime) / 1000;
+            const resultContainer = document.getElementById('result-container');
+            
+            if (success) {
+                resultContainer.innerHTML = `<div class="success">Congratulations! <br/>You completed the challenge in ${elapsed.toFixed(1)} seconds!</div>`;
+            } else {
+                resultContainer.innerHTML = `<div class="game-over">Game Over! <br/>You scored: ${score}/25 <br/>Time: ${elapsed.toFixed(1)} seconds</div>`;
+            }
+            
+            resultContainer.style.display = 'block';
+            document.getElementById('start-container').style.display = 'block';
+            document.getElementById('game-container').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', handleKeyPress);
+
+        function areSquaresOnSameDiagonal(square1, square2) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            
+            const file1 = files.indexOf(square1[0]);
+            const rank1 = ranks.indexOf(square1[1]);
+            const file2 = files.indexOf(square2[0]);
+            const rank2 = ranks.indexOf(square2[1]);
+            
+            // Squares are on the same diagonal if the absolute difference between files
+            // equals the absolute difference between ranks
+            return Math.abs(file2 - file1) === Math.abs(rank2 - rank1);
+        }
+
+        function handleKeyPress(e) {
+            if (!gameActive) return;
+            
+            if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 's') {
+                checkAnswer(true); // Same diagonal
+            } else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
+                checkAnswer(false); // Different diagonal
+            }
+        }
+
+        function nextSquare() {
+            // Use setTimeout to avoid UI freezing during calculations
+            setTimeout(() => {
+                try {
+                    generateNextSquarePair();
+                } catch (error) {
+                    console.error("Error generating squares:", error);
+                    // Use fallback squares in case of any error
+                    const fallbacks = [
+                        {sq1: "a1", sq2: "h8", same: true},
+                        {sq1: "a8", sq2: "h1", same: true},
+                        {sq1: "d4", sq2: "e6", same: false},
+                        {sq1: "g2", sq2: "c5", same: false}
+                    ];
+                    const fallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+                    
+                    currentSquares = [fallback.sq1, fallback.sq2];
+                    isSameDiagonal = fallback.same;
+                    document.getElementById('square-display').textContent = fallback.sq1 + ' ' + fallback.sq2;
+                }
+            }, 10);
+        }
+
+        function generateNextSquarePair() {
+            // Hard-coded pairs that we know are valid to avoid any computation issues
+            const predefinedPairs = [
+                {sq1: "a1", sq2: "h8", same: true},
+                {sq1: "a8", sq2: "h1", same: true},
+                {sq1: "c3", sq2: "f6", same: true},
+                {sq1: "b7", sq2: "e4", same: true},
+                {sq1: "e2", sq2: "b5", same: true},
+                {sq1: "g7", sq2: "d4", same: true},
+                {sq1: "h3", sq2: "e6", same: true},
+                {sq1: "d4", sq2: "e6", same: false},
+                {sq1: "b2", sq2: "g6", same: false},
+                {sq1: "a3", sq2: "h5", same: false},
+                {sq1: "f2", sq2: "c7", same: false},
+                {sq1: "h4", sq2: "d1", same: false},
+                {sq1: "e5", sq2: "g3", same: false},
+                {sq1: "a2", sq2: "g5", same: false},
+                {sq1: "c6", sq2: "h2", same: false}
+            ];
+            
+            // 50% chance to use predefined pairs (to ensure stability)
+            // 50% chance to use dynamically generated pairs (for variety)
+            const usePredefined = Math.random() < 0.5;
+            
+            if (usePredefined) {
+                // Select a random predefined pair
+                const pair = predefinedPairs[Math.floor(Math.random() * predefinedPairs.length)];
+                currentSquares = [pair.sq1, pair.sq2];
+                isSameDiagonal = pair.same;
+                document.getElementById('square-display').textContent = pair.sq1 + ' ' + pair.sq2;
+                console.log('Using predefined squares:', pair.sq1, pair.sq2, 'Same diagonal:', pair.same);
+                return;
+            }
+            
+            // Otherwise generate squares dynamically
+            const timestamp = Date.now();
+            let Square1, Square2;
+            
+            // Step 1: Generate random first square
+            Square1 = generateRandomSquare(timestamp);
+            
+            // Step 2: Decide if we want same diagonal
+            isSameDiagonal = Math.random() < 0.5;
+            
+            if (isSameDiagonal) {
+                // Generate a square on the same diagonal
+                Square2 = generateSameDiagonalSquare(Square1);
+            } else {
+                // Generate a square NOT on the same diagonal
+                Square2 = generateDifferentDiagonalSquare(Square1);
+            }
+            
+            // Update state
+            currentSquares = [Square1, Square2];
+            document.getElementById('square-display').textContent = Square1 + ' ' + Square2;
+            console.log('Generated squares:', Square1, Square2, 'Same diagonal:', isSameDiagonal);
+        }
+        
+        function generateSameDiagonalSquare(square1) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            
+            const file1Index = files.indexOf(square1[0]);
+            const rank1Index = ranks.indexOf(square1[1]);
+            
+            // Simple approach: move 1-3 squares diagonally in a random direction
+            const step = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3
+            const dirH = Math.random() < 0.5 ? 1 : -1;
+            const dirV = Math.random() < 0.5 ? 1 : -1;
+            
+            let file2Index = file1Index + (step * dirH);
+            let rank2Index = rank1Index + (step * dirV);
+            
+            // Make sure we stay on the board
+            if (file2Index < 0 || file2Index > 7 || rank2Index < 0 || rank2Index > 7) {
+                // If off the board, try the opposite direction
+                file2Index = file1Index - (step * dirH);
+                rank2Index = rank1Index - (step * dirV);
+            }
+            
+            // Final bounds check
+            file2Index = Math.max(0, Math.min(7, file2Index));
+            rank2Index = Math.max(0, Math.min(7, rank2Index));
+            
+            return files[file2Index] + ranks[rank2Index];
+        }
+        
+        function generateDifferentDiagonalSquare(square1) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            
+            const file1Index = files.indexOf(square1[0]);
+            const rank1Index = ranks.indexOf(square1[1]);
+            
+            // Move in L-shape (like a knight) to guarantee not on diagonal
+            const moves = [
+                {fileOffset: 1, rankOffset: 2},
+                {fileOffset: 2, rankOffset: 1},
+                {fileOffset: 2, rankOffset: -1},
+                {fileOffset: 1, rankOffset: -2},
+                {fileOffset: -1, rankOffset: -2},
+                {fileOffset: -2, rankOffset: -1},
+                {fileOffset: -2, rankOffset: 1},
+                {fileOffset: -1, rankOffset: 2}
+            ];
+            
+            // Select a random knight move
+            const move = moves[Math.floor(Math.random() * moves.length)];
+            
+            let file2Index = file1Index + move.fileOffset;
+            let rank2Index = rank1Index + move.rankOffset;
+            
+            // Check if in bounds
+            if (file2Index < 0 || file2Index > 7 || rank2Index < 0 || rank2Index > 7) {
+                // If out of bounds, use a known different square far away
+                // Use the corner opposite to the current square
+                file2Index = (file1Index < 4) ? 7 : 0;
+                rank2Index = (rank1Index < 4) ? 7 : 0;
+                
+                // Ensure it's not on the same diagonal
+                if (Math.abs(file2Index - file1Index) === Math.abs(rank2Index - rank1Index)) {
+                    rank2Index = (rank2Index === 0) ? 1 : 6;
+                }
+            }
+            
+            return files[file2Index] + ranks[rank2Index];
+        }
+
+        function checkAnswer(answer) {
+            if (!gameActive) return;
+
+            // Calculate the actual diagonal relationship at time of checking
+            const actualIsSameDiagonal = areSquaresOnSameDiagonal(currentSquares[0], currentSquares[1]);
+            console.log('Checking answer:', 'User answer:', answer ? 'Same' : 'Different', 
+                        'Actual status:', actualIsSameDiagonal ? 'Same' : 'Different');
+
+            if (answer === actualIsSameDiagonal) {
+                score++;
+                document.getElementById('score').textContent = score;
+
+                if (score >= 25) {
+                    endGame(true);
+                } else {
+                    nextSquare(); // Generate new squares after correct answer
+                }
+            } else {
+                endGame(false);
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Color Trainer</title>
+    <link rel="stylesheet" href="/static/css/square_color_trainer.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,24 +16,28 @@
             padding: 20px;
             min-height: 600px;
         }
+
         .container {
             max-width: 600px;
             min-height: 600px;
             width: 100%;
             text-align: center;
         }
+
         .square-display {
             font-size: 60px;
             font-weight: bold;
             margin: 20px 0;
             color: #1f2937;
         }
+
         .button-container {
             display: flex;
             gap: 20px;
             justify-content: center;
             margin-top: 20px;
         }
+
         button {
             padding: 15px 40px;
             font-size: 18px;
@@ -39,29 +47,35 @@
             transition: transform 0.1s;
             min-width: 120px;
         }
+
         button:active {
             transform: scale(0.98);
         }
+
         .white-btn {
             background-color: #f2efe4;
             aspect-ratio: 1/1;
             color: #1f2937;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .black-btn {
             background-color: #3c2f12;
             aspect-ratio: 2/1;
             color: #ffffff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .black-btn:active {
             background-color: #221f0d;
             transform: scale(0.90);
         }
+
         .white-btn:active {
             background-color: #eae9d2;
             transform: scale(0.90);
         }
+
         .stats {
             display: flex;
             justify-content: space-between;
@@ -69,16 +83,18 @@
             font-size: 18px;
             color: #4b5563;
         }
+
         .start-btn {
             background-color: #d1d3bb;
             color: rgb(0, 0, 0);
-            font-family:sans-serif;
+            font-family: sans-serif;
             font-weight: bold;
             padding: 12px 30px;
             font-size: 16px;
             border-radius: 6px;
             margin-top: 20px;
         }
+
         .instructions {
             background-color: white;
             padding: 20px;
@@ -87,18 +103,20 @@
             margin-bottom: 20px;
             text-align: left;
         }
+
         .game-over {
             color: #6d4435;
             font-size: 24px;
-            font-family:sans-serif;
+            font-family: sans-serif;
             margin: 20px 0;
         }
+
         .success {
             color: #366d22;
             font-size: 24px;
-            font-family:sans-serif;
+            font-family: sans-serif;
             margin: 20px 0;
-        }
+        } 
     </style>
 </head>
 <body>

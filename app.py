@@ -16,11 +16,12 @@ def back_to_home():
 
 pages = {
     "Main": [
-        st.Page("pages/home.py", title="Home"),
+        st.Page("site_pages/home.py", title="Home"),
     ],
     "Tools": [
-        st.Page("pages/pgn_to_Audio.py", title="PGN to Audio Converter"),
-        st.Page("pages/square_color_trainer.py", title="Square Color Trainer"),
+        st.Page("site_pages/pgn_to_audio.py", title="PGN to Audio Converter"),
+        st.Page("site_pages/square_color_trainer.py", title="Square Color Trainer"),
+        st.Page("site_pages/diagonals_trainer.py", title="Diagonals Trainer"),
     ],
 }
 
@@ -29,4 +30,4 @@ pg.run()
 
 st.divider()
 if "home.py" not in str(pg._page):
-    st.page_link("pages/home.py", label="Back to Home", icon=":material/home:")
+    st.page_link("site_pages/home.py", label="Back to Home", icon=":material/home:")

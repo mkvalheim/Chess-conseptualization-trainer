@@ -1,5 +1,11 @@
-
 [theme]
 base="light"
 primaryColor="#1b1c4e"
 secondaryBackgroundColor="#e2ecc6"
+textColor="#262730"
+
+[server]
+
+
+[browser]
+gatherUsageStats = false
