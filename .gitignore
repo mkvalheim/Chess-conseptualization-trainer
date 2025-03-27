@@ -44,3 +44,6 @@ Thumbs.db
 
 # Temp directory for PGN and MP3 files
 temp/ 
+
+# Secrets
+.streamlit/secrets.toml
